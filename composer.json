@@ -61,6 +61,10 @@
         "lint:check": [
             "pint --parallel --test"
         ],
+        "ci:check": [
+            "@composer lint:check",
+            "@composer test"
+        ],
         "check": [
             "pint --test",
             "@php artisan test"

@@ -13,7 +13,6 @@ use App\Support\DateHelper;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class CalendarService
 {
@@ -54,7 +53,7 @@ class CalendarService
 
             $timeRange = null;
             if ($earliestSlot && $latestSlot) {
-                $timeRange = DateHelper::formatTime($earliestSlot->starts_at) . ' – ' . DateHelper::formatTime($latestSlot->ends_at);
+                $timeRange = DateHelper::formatTime($earliestSlot->starts_at).' – '.DateHelper::formatTime($latestSlot->ends_at);
             }
 
             return [
@@ -155,7 +154,7 @@ class CalendarService
 
             $timeRange = null;
             if ($earliestSlot && $latestSlot) {
-                $timeRange = DateHelper::formatTime($earliestSlot->starts_at) . ' – ' . DateHelper::formatTime($latestSlot->ends_at);
+                $timeRange = DateHelper::formatTime($earliestSlot->starts_at).' – '.DateHelper::formatTime($latestSlot->ends_at);
             }
 
             return [
@@ -176,6 +175,7 @@ class CalendarService
         // Map appointments by local date string
         $appointmentsByDate = $appointments->groupBy(function (Appointment $appointment) {
             $slot = $appointment->slot;
+
             return $slot ? DateHelper::toEat($slot->starts_at)->toDateString() : '';
         });
 
@@ -191,6 +191,7 @@ class CalendarService
 
         $donorMonthAppointments = $appointments->filter(function ($a) use ($monthStartStr, $monthEndStr) {
             $date = $a->slot ? DateHelper::toEat($a->slot->starts_at)->toDateString() : '';
+
             return $date >= $monthStartStr && $date <= $monthEndStr;
         });
 
@@ -234,8 +235,8 @@ class CalendarService
     /**
      * Build day cells for the calendar grid.
      *
-     * @param Collection<int, array<string, mixed>> $drives
-     * @param Collection<string, Collection<int, Appointment>>|null $appointmentsByDate
+     * @param  Collection<int, array<string, mixed>>  $drives
+     * @param  Collection<string, Collection<int, Appointment>>|null  $appointmentsByDate
      * @return array<int, array<string, mixed>>
      */
     private function buildGridDays(

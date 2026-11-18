@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Enums\DriveStatus;
 use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DonationExportController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
@@ -26,6 +27,8 @@ use App\Http\Controllers\Staff\SlotController as StaffSlotController;
 use App\Http\Controllers\UnsubscribeController;
 use App\Livewire\Admin\StaffManagement;
 use App\Livewire\Staff\DriveRoster;
+use App\Models\Drive;
+use App\Support\DateHelper;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController;
 use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
@@ -37,9 +40,9 @@ use Laravel\Fortify\Http\Controllers\RegisteredUserController;
 |--------------------------------------------------------------------------
 */
 Route::get('/', function () {
-    $todayEat = \App\Support\DateHelper::today()->toDateString();
-    $upcomingDrives = \App\Models\Drive::query()
-        ->where('status', \App\Enums\DriveStatus::Published->value)
+    $todayEat = DateHelper::today()->toDateString();
+    $upcomingDrives = Drive::query()
+        ->where('status', DriveStatus::Published->value)
         ->where('ends_on', '>=', $todayEat)
         ->orderBy('starts_on')
         ->take(3)

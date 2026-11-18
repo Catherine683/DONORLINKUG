@@ -230,7 +230,7 @@
                                             </span>
                                         @else
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700">
-                                                Attended &amp; Screened
+                                                Attended (no donation recorded)
                                             </span>
                                         @endif
                                     </td>

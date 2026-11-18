@@ -40,11 +40,11 @@ class CalendarController extends Controller
         }
 
         $ics = IcsGenerator::generate($appointment);
-        $filename = 'donorlink-appointment-' . $appointment->id . '.ics';
+        $filename = 'donorlink-appointment-'.$appointment->id.'.ics';
 
         return response($ics, 200, [
             'Content-Type' => 'text/calendar; charset=utf-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
 }

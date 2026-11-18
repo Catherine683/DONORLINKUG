@@ -242,7 +242,7 @@
                                     </span>
                                     @php
                                         $pastBadgeLabel = match ($appointment->status) {
-                                            \App\Enums\AppointmentStatus::Booked => 'Concluded Session',
+                                            \App\Enums\AppointmentStatus::Booked => 'Not recorded',
                                             \App\Enums\AppointmentStatus::Attended => 'Attended',
                                             \App\Enums\AppointmentStatus::NoShow => 'Missed',
                                             \App\Enums\AppointmentStatus::Cancelled => 'Cancelled',

@@ -10,11 +10,16 @@ use App\Http\Controllers\Controller;
 use App\Models\DonationRecord;
 use App\Models\DonorProfile;
 use App\Models\User;
+use App\Rules\UgandanPhoneNumber;
 use App\Services\AuditLogger;
 use App\Services\DonationRecorder;
+use App\Support\PhoneNumber;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -82,32 +87,32 @@ class DonorController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['required', 'string', new \App\Rules\UgandanPhoneNumber],
+            'phone' => ['required', 'string', new UgandanPhoneNumber],
             'date_of_birth' => ['nullable', 'date', 'after_or_equal:1900-01-01', 'before_or_equal:today'],
             'blood_group' => ['nullable', 'string', Rule::in(self::VALID_BLOOD_GROUPS)],
             'notes_for_staff' => ['nullable', 'string', 'max:500'],
             'password' => ['nullable', 'string', 'min:8'],
         ], [
-            'phone' => \App\Support\PhoneNumber::errorMessage(),
+            'phone' => PhoneNumber::errorMessage(),
             'date_of_birth.after_or_equal' => 'Please enter a valid date of birth on or after 1900.',
             'date_of_birth.before_or_equal' => 'Date of birth cannot be in the future.',
         ]);
 
         $plainPassword = ! empty($validated['password'])
             ? $validated['password']
-            : \Illuminate\Support\Str::password(12);
+            : Str::password(12);
 
-        $donor = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $plainPassword) {
+        $donor = DB::transaction(function () use ($validated, $plainPassword) {
             $user = User::forceCreate([
                 'name' => trim((string) $validated['name']),
                 'email' => strtolower(trim((string) $validated['email'])),
-                'phone' => \App\Support\PhoneNumber::normalise((string) $validated['phone']),
+                'phone' => PhoneNumber::normalise((string) $validated['phone']),
                 'date_of_birth' => ! empty($validated['date_of_birth']) ? $validated['date_of_birth'] : null,
                 'role' => Role::Donor,
                 'is_active' => true,
                 'consent_given_at' => now(),
                 'email_verified_at' => now(),
-                'password' => \Illuminate\Support\Facades\Hash::make($plainPassword),
+                'password' => Hash::make($plainPassword),
             ]);
 
             $cleanBloodGroup = ! empty($validated['blood_group'])
