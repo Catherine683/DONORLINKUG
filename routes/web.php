@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\NotificationController as AdminNotificationContro
 use App\Http\Controllers\Admin\SystemStatusController;
 use App\Http\Controllers\DashboardRedirectController;
 use App\Http\Controllers\Donor\AppointmentController;
+use App\Http\Controllers\Donor\CalendarController as DonorCalendarController;
 use App\Http\Controllers\Donor\HistoryController;
 use App\Http\Controllers\Donor\HomeController as DonorHomeController;
 use App\Http\Controllers\Donor\PasswordController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Donor\ProfileController;
 use App\Http\Controllers\PublicDriveController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\Staff\CalendarController as StaffCalendarController;
 use App\Http\Controllers\Staff\DashboardController;
 use App\Http\Controllers\Staff\DonorController;
 use App\Http\Controllers\Staff\DriveController as StaffDriveController;
@@ -93,6 +95,8 @@ Route::middleware(['auth', 'verified', 'role:donor'])
     ->name('donor.')
     ->group(function () {
         Route::get('/', DonorHomeController::class)->name('home');
+        Route::get('/calendar', [DonorCalendarController::class, 'index'])->name('calendar');
+        Route::get('/calendar/appointment/{appointment}/ics', [DonorCalendarController::class, 'exportIcs'])->name('calendar.ics');
         Route::get('/appointments', [AppointmentController::class, 'index'])->name('appointments');
         Route::post('/appointments', [AppointmentController::class, 'store'])->middleware('throttle:15,1')->name('appointments.store');
         Route::delete('/appointments/{appointment?}', [AppointmentController::class, 'destroy'])->middleware('throttle:15,1')->name('appointments.destroy');
@@ -130,6 +134,7 @@ Route::middleware(['auth', 'verified', 'role:staff'])
     ->name('staff.')
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/calendar', [StaffCalendarController::class, 'index'])->name('calendar');
         Route::get('/export/period-summary', [DashboardController::class, 'exportPeriod'])->middleware('throttle:exports')->name('export.period');
 
         // Drives management

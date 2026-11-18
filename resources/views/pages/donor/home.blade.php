@@ -1,56 +1,5 @@
 <x-layouts.donor title="Donor Dashboard — DonorLink UG">
     <div class="space-y-6 sm:space-y-8">
-        {{-- System Header Banner --}}
-        <div class="bg-white rounded-2xl border border-neutral-200/90 shadow-xs p-6 sm:p-8 relative overflow-hidden">
-            {{-- Crimson Top Accent Strip --}}
-            <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary-700 via-primary-600 to-rose-400"></div>
-
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                <div class="space-y-2">
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-primary-50 text-primary-800 border border-primary-200/60">
-                            <span class="w-2 h-2 rounded-full bg-primary-600 animate-pulse"></span>
-                            UBTS &bull; Voluntary Donor Registry
-                        </span>
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700 font-mono">
-                            #UBTS-D{{ str_pad((string)$user->id, 5, '0', STR_PAD_LEFT) }}
-                        </span>
-                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            Verified Donor Account
-                        </span>
-                    </div>
-
-                    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900 font-sans">
-                        Welcome back, {{ $user->name }}
-                    </h1>
-
-                    <p class="text-sm text-neutral-500 max-w-2xl leading-relaxed">
-                        Uganda Blood Transfusion Services (UBTS) scheduling & voluntary attendance record system.
-                    </p>
-                </div>
-
-                {{-- Action Shortcuts --}}
-                <div class="flex flex-wrap items-center gap-3 shrink-0">
-                    <x-button :href="route('drives.index')" variant="primary" size="md" class="shadow-sm">
-                        <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Book Donation Slot
-                    </x-button>
-
-                    <x-button :href="route('donor.appointments')" variant="secondary" size="md" class="bg-white border-neutral-300">
-                        <svg class="w-4 h-4 mr-1.5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        Appointments ({{ $activeAppointmentsCount }})
-                    </x-button>
-                </div>
-            </div>
-        </div>
-
         {{-- Flash Alerts --}}
         @if (session('status'))
             <x-alert variant="success" :title="session('status')" />
@@ -213,6 +162,57 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                         Voluntary Donor Status
                     </span>
+                </div>
+            </div>
+        </div>
+
+        {{-- System Header Banner --}}
+        <div class="bg-white rounded-2xl border border-neutral-200/90 shadow-xs p-6 sm:p-8 relative overflow-hidden">
+            {{-- Crimson Top Accent Strip --}}
+            <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary-700 via-primary-600 to-rose-400"></div>
+
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-primary-50 text-primary-800 border border-primary-200/60">
+                            <span class="w-2 h-2 rounded-full bg-primary-600 animate-pulse"></span>
+                            UBTS &bull; Voluntary Donor Registry
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700 font-mono">
+                            #UBTS-D{{ str_pad((string)$user->id, 5, '0', STR_PAD_LEFT) }}
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                            Verified Donor Account
+                        </span>
+                    </div>
+
+                    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-900 font-sans">
+                        Welcome back, {{ $user->name }}
+                    </h1>
+
+                    <p class="text-sm text-neutral-500 max-w-2xl leading-relaxed">
+                        Uganda Blood Transfusion Services (UBTS) scheduling & voluntary attendance record system.
+                    </p>
+                </div>
+
+                {{-- Action Shortcuts --}}
+                <div class="flex flex-wrap items-center gap-3 shrink-0">
+                    <x-button :href="route('drives.index')" variant="primary" size="md" class="shadow-sm">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Book Donation Slot
+                    </x-button>
+
+                    <x-button :href="route('donor.appointments')" variant="secondary" size="md" class="bg-white border-neutral-300">
+                        <svg class="w-4 h-4 mr-1.5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Appointments ({{ $activeAppointmentsCount }})
+                    </x-button>
                 </div>
             </div>
         </div>

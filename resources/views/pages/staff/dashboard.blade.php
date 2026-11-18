@@ -1,63 +1,5 @@
 <x-layouts.staff title="Operations Dashboard — Staff Portal">
     <div class="space-y-6 sm:space-y-8">
-        {{-- Header & Period Filter --}}
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-neutral-200">
-            <div>
-                <div class="flex items-center gap-3">
-                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">Operations Dashboard</h1>
-                    <x-badge variant="{{ auth()->user()->isAdmin() ? 'warning' : 'primary' }}" size="sm">
-                        {{ auth()->user()->role->label() }}
-                    </x-badge>
-                </div>
-                <p class="text-xs sm:text-sm text-neutral-500 mt-1">
-                    Uganda Blood Transfusion Services (UBTS) • Period: {{ $startEat->format('d M Y') }} – {{ $endEat->format('d M Y') }} (EAT)
-                </p>
-            </div>
-
-            {{-- Controls & Date Range Filter --}}
-            <div class="flex flex-wrap items-center gap-2.5">
-                <form method="GET" action="{{ route('staff.dashboard') }}" class="flex flex-wrap items-center gap-2">
-                    <div class="inline-flex rounded-lg border border-neutral-300 p-0.5 bg-neutral-100 text-xs font-medium">
-                        <button
-                            type="submit"
-                            name="preset"
-                            value="30d"
-                            class="px-2.5 py-1.5 rounded-md transition-colors {{ $preset === '30d' ? 'bg-white font-semibold text-neutral-900 shadow-xs' : 'text-neutral-600 hover:text-neutral-900' }}"
-                        >
-                            Last 30 days
-                        </button>
-                        <button
-                            type="submit"
-                            name="preset"
-                            value="90d"
-                            class="px-2.5 py-1.5 rounded-md transition-colors {{ $preset === '90d' ? 'bg-white font-semibold text-neutral-900 shadow-xs' : 'text-neutral-600 hover:text-neutral-900' }}"
-                        >
-                            Last 90 days
-                        </button>
-                        <button
-                            type="submit"
-                            name="preset"
-                            value="this_year"
-                            class="px-2.5 py-1.5 rounded-md transition-colors {{ $preset === 'this_year' ? 'bg-white font-semibold text-neutral-900 shadow-xs' : 'text-neutral-600 hover:text-neutral-900' }}"
-                        >
-                            This year
-                        </button>
-                    </div>
-                </form>
-
-                {{-- Export Period Summary CSV --}}
-                <a
-                    href="{{ route('staff.export.period', ['preset' => $preset, 'start_date' => $startEat->toDateString(), 'end_date' => $endEat->toDateString()]) }}"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-neutral-900 text-white hover:bg-neutral-800 shadow-xs focus:ring-2 focus:ring-neutral-500 focus:outline-hidden transition-colors"
-                >
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span>Export Period CSV</span>
-                </a>
-            </div>
-        </div>
-
         {{-- Warning Banner for Admins when background scheduler or queue worker is dead --}}
         @if (auth()->user()->isAdmin() && app(\App\Services\SystemStatusService::class)->hasBackgroundIssue())
             <div class="p-4 rounded-xl bg-danger-50 border border-danger-200 text-danger-900 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
@@ -76,7 +18,70 @@
             </div>
         @endif
 
-        {{-- 1. Today / Next Drive Panel --}}
+        {{-- Period Summary Cards Grid --}}
+        <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+                <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-600">Period Summary Metrics</h2>
+                <a href="#about-these-numbers" class="text-xs text-primary-600 hover:underline font-medium">View Metric Definitions ↓</a>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4">
+                {{-- Drives Held --}}
+                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
+                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">Drives Held</span>
+                    <p class="text-2xl font-bold text-neutral-900 mt-1">{{ $periodMetrics['drives_held'] }}</p>
+                    <span class="text-[11px] text-neutral-400 mt-0.5 block">Ended in period</span>
+                </div>
+
+                {{-- Bookings --}}
+                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
+                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">Booked</span>
+                    <p class="text-2xl font-bold text-primary-700 mt-1">{{ $periodMetrics['booked'] }}</p>
+                    <span class="text-[11px] text-neutral-400 mt-0.5 block">Live reservations</span>
+                </div>
+
+                {{-- Attendance Rate --}}
+                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
+                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">Attendance Rate</span>
+                    <p class="text-2xl font-bold text-amber-700 mt-1">
+                        {{ \App\Services\ReportService::formatRate($periodMetrics['attendance_rate']) }}
+                    </p>
+                    <span class="text-[11px] text-neutral-400 mt-0.5 block">Attended ÷ (Att+NoShow)</span>
+                </div>
+
+                {{-- Donations Recorded --}}
+                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
+                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">Donated</span>
+                    <p class="text-2xl font-bold text-emerald-700 mt-1">{{ $periodMetrics['donated'] }}</p>
+                    <span class="text-[11px] text-neutral-400 mt-0.5 block">
+                        Rate: {{ \App\Services\ReportService::formatRate($periodMetrics['donation_rate']) }}
+                    </span>
+                </div>
+
+                {{-- Walk-ins --}}
+                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
+                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">Walk-Ins</span>
+                    <p class="text-2xl font-bold text-purple-700 mt-1">{{ $periodMetrics['walk_ins'] }}</p>
+                    <span class="text-[11px] text-neutral-400 mt-0.5 block">No prior booking</span>
+                </div>
+
+                {{-- First-time Donors --}}
+                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
+                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">First-Time Donors</span>
+                    <p class="text-2xl font-bold text-neutral-900 mt-1">{{ $periodMetrics['first_time_donors'] }}</p>
+                    <span class="text-[11px] text-neutral-400 mt-0.5 block">First donation in period</span>
+                </div>
+
+                {{-- New Registrations --}}
+                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs col-span-2 sm:col-span-1">
+                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">New Registrations</span>
+                    <p class="text-2xl font-bold text-neutral-900 mt-1">{{ $periodMetrics['new_registrations'] }}</p>
+                    <span class="text-[11px] text-neutral-400 mt-0.5 block">Accounts created</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- 1. Today / Next Drive Panel (Active Blood Drive / Next Upcoming Drive with live metrics strip) --}}
         @if($liveOrNext['status'] === 'live')
             @php $liveMetrics = $liveOrNext['metrics']; $liveDrive = $liveOrNext['drive']; @endphp
             <div class="rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 sm:p-6 shadow-xs">
@@ -168,6 +173,64 @@
             </div>
         @endif
 
+        {{-- Header & Period Filter --}}
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-neutral-200">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900">Operations Dashboard</h1>
+                    <x-badge variant="{{ auth()->user()->isAdmin() ? 'warning' : 'primary' }}" size="sm">
+                        {{ auth()->user()->role->label() }}
+                    </x-badge>
+                </div>
+                <p class="text-xs sm:text-sm text-neutral-500 mt-1">
+                    Uganda Blood Transfusion Services (UBTS) • Period: {{ $startEat->format('d M Y') }} – {{ $endEat->format('d M Y') }} (EAT)
+                </p>
+            </div>
+
+            {{-- Controls & Date Range Filter --}}
+            <div class="flex flex-wrap items-center gap-2.5">
+                <form method="GET" action="{{ route('staff.dashboard') }}" class="flex flex-wrap items-center gap-2">
+                    <div class="inline-flex rounded-lg border border-neutral-300 p-0.5 bg-neutral-100 text-xs font-medium">
+                        <button
+                            type="submit"
+                            name="preset"
+                            value="30d"
+                            class="px-2.5 py-1.5 rounded-md transition-colors {{ $preset === '30d' ? 'bg-white font-semibold text-neutral-900 shadow-xs' : 'text-neutral-600 hover:text-neutral-900' }}"
+                        >
+                            Last 30 days
+                        </button>
+                        <button
+                            type="submit"
+                            name="preset"
+                            value="90d"
+                            class="px-2.5 py-1.5 rounded-md transition-colors {{ $preset === '90d' ? 'bg-white font-semibold text-neutral-900 shadow-xs' : 'text-neutral-600 hover:text-neutral-900' }}"
+                        >
+                            Last 90 days
+                        </button>
+                        <button
+                            type="submit"
+                            name="preset"
+                            value="this_year"
+                            class="px-2.5 py-1.5 rounded-md transition-colors {{ $preset === 'this_year' ? 'bg-white font-semibold text-neutral-900 shadow-xs' : 'text-neutral-600 hover:text-neutral-900' }}"
+                        >
+                            This year
+                        </button>
+                    </div>
+                </form>
+
+                {{-- Export Period Summary CSV --}}
+                <a
+                    href="{{ route('staff.export.period', ['preset' => $preset, 'start_date' => $startEat->toDateString(), 'end_date' => $endEat->toDateString()]) }}"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-neutral-900 text-white hover:bg-neutral-800 shadow-xs focus:ring-2 focus:ring-neutral-500 focus:outline-hidden transition-colors"
+                >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>Export Period CSV</span>
+                </a>
+            </div>
+        </div>
+
         {{-- 2. Needs Attention Panel --}}
         <div class="bg-white rounded-xl border border-neutral-200 p-4 sm:p-6 shadow-xs">
             <div class="flex items-center justify-between gap-2 mb-4">
@@ -216,68 +279,6 @@
             @endif
         </div>
 
-        {{-- 3. Period Summary Cards Grid --}}
-        <div>
-            <div class="flex items-center justify-between gap-2 mb-3">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-600">Period Summary Metrics</h2>
-                <a href="#about-these-numbers" class="text-xs text-primary-600 hover:underline font-medium">View Metric Definitions ↓</a>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4">
-                {{-- Drives Held --}}
-                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
-                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">Drives Held</span>
-                    <p class="text-2xl font-bold text-neutral-900 mt-1">{{ $periodMetrics['drives_held'] }}</p>
-                    <span class="text-[11px] text-neutral-400 mt-0.5 block">Ended in period</span>
-                </div>
-
-                {{-- Bookings --}}
-                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
-                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">Booked</span>
-                    <p class="text-2xl font-bold text-primary-700 mt-1">{{ $periodMetrics['booked'] }}</p>
-                    <span class="text-[11px] text-neutral-400 mt-0.5 block">Live reservations</span>
-                </div>
-
-                {{-- Attendance Rate --}}
-                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
-                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">Attendance Rate</span>
-                    <p class="text-2xl font-bold text-amber-700 mt-1">
-                        {{ \App\Services\ReportService::formatRate($periodMetrics['attendance_rate']) }}
-                    </p>
-                    <span class="text-[11px] text-neutral-400 mt-0.5 block">Attended ÷ (Att+NoShow)</span>
-                </div>
-
-                {{-- Donations Recorded --}}
-                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
-                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">Donated</span>
-                    <p class="text-2xl font-bold text-emerald-700 mt-1">{{ $periodMetrics['donated'] }}</p>
-                    <span class="text-[11px] text-neutral-400 mt-0.5 block">
-                        Rate: {{ \App\Services\ReportService::formatRate($periodMetrics['donation_rate']) }}
-                    </span>
-                </div>
-
-                {{-- Walk-ins --}}
-                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
-                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">Walk-Ins</span>
-                    <p class="text-2xl font-bold text-purple-700 mt-1">{{ $periodMetrics['walk_ins'] }}</p>
-                    <span class="text-[11px] text-neutral-400 mt-0.5 block">No prior booking</span>
-                </div>
-
-                {{-- First-time Donors --}}
-                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs">
-                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">First-Time Donors</span>
-                    <p class="text-2xl font-bold text-neutral-900 mt-1">{{ $periodMetrics['first_time_donors'] }}</p>
-                    <span class="text-[11px] text-neutral-400 mt-0.5 block">First donation in period</span>
-                </div>
-
-                {{-- New Registrations --}}
-                <div class="bg-white p-3.5 sm:p-4 rounded-xl border border-neutral-200 shadow-xs col-span-2 sm:col-span-1">
-                    <span class="text-xs font-semibold text-neutral-500 uppercase tracking-wider block">New Registrations</span>
-                    <p class="text-2xl font-bold text-neutral-900 mt-1">{{ $periodMetrics['new_registrations'] }}</p>
-                    <span class="text-[11px] text-neutral-400 mt-0.5 block">Accounts created</span>
-                </div>
-            </div>
-        </div>
 
         {{-- 4. SVG Charts Grid --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

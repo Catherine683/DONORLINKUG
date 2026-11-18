@@ -18,16 +18,42 @@
                 </p>
             </div>
 
-            {{-- Quick Stats Banner --}}
-            <div class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-neutral-200/80 shadow-xs shrink-0 text-xs">
-                <div class="w-9 h-9 rounded-xl bg-primary-50 text-primary-700 flex items-center justify-center font-bold">
-                    <svg class="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                </div>
-                <div>
-                    <span class="font-bold text-neutral-900 text-sm block">{{ $drives->total() }}</span>
-                    <span class="text-neutral-500 text-[11px]">Published Drives Found</span>
+            {{-- Quick Stats Banner & Calendar Shortcut --}}
+            <div class="flex flex-wrap items-center gap-3 shrink-0">
+                @auth
+                    @if(auth()->user()->isDonor())
+                        <a
+                            href="{{ route('donor.calendar') }}"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-white border border-neutral-200/80 text-xs font-semibold text-neutral-800 hover:text-primary-700 hover:border-primary-300 shadow-xs transition-colors"
+                        >
+                            <svg class="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>Calendar View</span>
+                        </a>
+                    @elseif(auth()->user()->isStaff())
+                        <a
+                            href="{{ route('staff.calendar') }}"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-white border border-neutral-200/80 text-xs font-semibold text-neutral-800 hover:text-primary-700 hover:border-primary-300 shadow-xs transition-colors"
+                        >
+                            <svg class="w-4 h-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>UBTS Calendar</span>
+                        </a>
+                    @endif
+                @endauth
+
+                <div class="flex items-center gap-3 bg-white p-3 rounded-2xl border border-neutral-200/80 shadow-xs text-xs">
+                    <div class="w-9 h-9 rounded-xl bg-primary-50 text-primary-700 flex items-center justify-center font-bold">
+                        <svg class="w-5 h-5 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="font-bold text-neutral-900 text-sm block">{{ $drives->total() }}</span>
+                        <span class="text-neutral-500 text-[11px]">Published Drives Found</span>
+                    </div>
                 </div>
             </div>
         </div>

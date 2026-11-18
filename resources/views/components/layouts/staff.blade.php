@@ -78,13 +78,25 @@
             {{-- Drives --}}
             <a
                 href="{{ route('staff.drives') }}"
-                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('staff.drives') ? 'bg-primary-50 text-primary-700 font-semibold' : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900' }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('staff.drives*') && !request()->routeIs('staff.drives.roster') ? 'bg-primary-50 text-primary-700 font-semibold' : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900' }}"
                 :title="collapsed ? 'Drives' : null"
             >
-                <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('staff.drives') ? 'text-primary-600' : 'text-neutral-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('staff.drives*') && !request()->routeIs('staff.drives.roster') ? 'text-primary-600' : 'text-neutral-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
                 <span x-show="!collapsed" class="truncate">Drives</span>
+            </a>
+
+            {{-- Calendar --}}
+            <a
+                href="{{ route('staff.calendar') }}"
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('staff.calendar*') ? 'bg-primary-50 text-primary-700 font-semibold' : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900' }}"
+                :title="collapsed ? 'Calendar' : null"
+            >
+                <svg class="w-5 h-5 shrink-0 {{ request()->routeIs('staff.calendar*') ? 'text-primary-600' : 'text-neutral-500' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span x-show="!collapsed" class="truncate">Calendar</span>
             </a>
 
             {{-- Donors --}}
