@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Casts\UgandanPhoneNumber;
 use App\Enums\Role;
+use App\Services\OtpService;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -63,6 +64,14 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'is_active' => 'boolean',
             'notify_new_drives' => 'boolean',
         ];
+    }
+
+    /**
+     * Send the email verification notification using a 6-digit OTP.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        app(OtpService::class)->sendActivationOtp($this);
     }
 
     /**

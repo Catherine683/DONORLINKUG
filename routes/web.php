@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\DonationExportController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\SystemStatusController;
+use App\Http\Controllers\Auth\PasswordResetOtpController;
+use App\Http\Controllers\Auth\VerifyOtpController;
 use App\Http\Controllers\DashboardRedirectController;
 use App\Http\Controllers\Donor\AppointmentController;
 use App\Http\Controllers\Donor\CalendarController as DonorCalendarController;
@@ -30,8 +32,6 @@ use App\Livewire\Staff\DriveRoster;
 use App\Models\Drive;
 use App\Support\DateHelper;
 use Illuminate\Support\Facades\Route;
-use Laravel\Fortify\Http\Controllers\EmailVerificationNotificationController;
-use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
 
 /*
@@ -71,11 +71,27 @@ Route::post('/register', [RegisteredUserController::class, 'store'])
     ->middleware(['web', 'guest', 'throttle:registration'])
     ->name('register.store');
 
-Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
+Route::post('/forgot-password', [PasswordResetOtpController::class, 'sendOtp'])
     ->middleware(['web', 'guest', 'throttle:forgot-password'])
     ->name('password.email');
 
-Route::post('/email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
+Route::get('/reset-password-otp', [PasswordResetOtpController::class, 'showResetForm'])
+    ->middleware(['web', 'guest'])
+    ->name('password.reset.otp.form');
+
+Route::post('/reset-password-otp', [PasswordResetOtpController::class, 'resetPassword'])
+    ->middleware(['web', 'guest', 'throttle:forgot-password'])
+    ->name('password.reset.otp.submit');
+
+Route::post('/resend-password-reset-otp', [PasswordResetOtpController::class, 'resendOtp'])
+    ->middleware(['web', 'guest', 'throttle:forgot-password'])
+    ->name('password.reset.otp.resend');
+
+Route::post('/email/verify-otp', [VerifyOtpController::class, 'verify'])
+    ->middleware(['web', 'auth'])
+    ->name('verification.otp.submit');
+
+Route::post('/email/verification-notification', [VerifyOtpController::class, 'resend'])
     ->middleware(['web', 'auth', 'throttle:verification-resend'])
     ->name('verification.send');
 

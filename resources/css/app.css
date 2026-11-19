@@ -99,6 +99,22 @@
         color-scheme: light;
     }
 
+    /* Force all inputs to have crisp, readable dark text */
+    input,
+    textarea,
+    select,
+    [data-flux-input] input,
+    ui-input input {
+        color: #1F1A1A !important;
+        -webkit-text-fill-color: #1F1A1A !important;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: #8C827A !important;
+        -webkit-text-fill-color: #8C827A !important;
+    }
+
     body {
         font-family: var(--font-sans);
         background-color: var(--color-neutral-50);
