@@ -20,7 +20,7 @@ medical professionals.
 - Donation outcome recording and derived donor donation history
 - CSV reports and exports with formula-injection protection
 - Queued appointment and reminder email notifications
-- Brevo SMTP quota protection and transactional email reserves
+- Brevo HTTPS API quota protection and transactional email reserves
 
 ## Technology
 
@@ -198,21 +198,20 @@ environment variables:
 The remaining privacy, retention, and contact settings are documented in
 [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
-## Brevo SMTP
+## Brevo email
 
-Production email can use Brevo SMTP:
+Production email uses Brevo's transactional email API over HTTPS:
 
 ```env
-MAIL_MAILER=smtp
-MAIL_HOST=smtp-relay.brevo.com
-MAIL_PORT=587
-MAIL_USERNAME=your-brevo-username
-MAIL_PASSWORD=your-brevo-smtp-key
+MAIL_MAILER=brevo
+BREVO_API_KEY=your-brevo-api-v3-key
 MAIL_FROM_ADDRESS=no-reply@example.ug
 MAIL_FROM_NAME="DonorLink UG"
 ```
 
-Port 587 uses SMTP with automatic STARTTLS negotiation.
+Use a Brevo API v3 key, not an SMTP key, and verify the sender address in
+Brevo. Render Free blocks outbound SMTP on ports 25, 465, and 587; the HTTPS
+API sends over port 443.
 
 Test delivery after configuring credentials:
 

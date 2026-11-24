@@ -10,6 +10,7 @@ use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\DataPart;
 
 class BrevoTransport extends AbstractTransport
 {
@@ -63,9 +64,9 @@ class BrevoTransport extends AbstractTransport
 
         if ($email->getAttachments() !== []) {
             $payload['attachment'] = array_map(
-                fn ($attachment): array => [
+                fn (DataPart $attachment): array => [
                     'name' => $attachment->getFilename() ?? 'attachment',
-                    'content' => base64_encode($attachment->bodyToString()),
+                    'content' => base64_encode($attachment->getBody()),
                 ],
                 $email->getAttachments(),
             );

@@ -32,7 +32,7 @@ This runbook provides emergency diagnosis and resolution procedures for system a
 - **Fix:**
   1. In Render, check that the `donorlink-scheduler` cron service is active.
   2. In Render, ensure the `donorlink-queue` worker process (`php artisan queue:work database`) is active and has not crashed.
-  3. Verify Brevo mail credentials in environment settings.
+  3. Verify `BREVO_API_KEY` and the verified sender address in the Render environment group.
   4. Manually trigger a scheduler sweep from the hosted console if necessary: `php artisan donorlink:send-reminders`.
 
 ---
@@ -47,7 +47,7 @@ This runbook provides emergency diagnosis and resolution procedures for system a
 - **Fix:**
   1. If quota reached (300/day on Brevo free plan), drive announcements automatically pause to preserve remaining headroom for transactional booking/rescheduling emails.
   2. If emergency quota is exhausted, upgrade the Brevo plan or increase `DONORLINK_MAIL_DAILY_BUDGET` after purchasing additional credits.
-  3. If failing due to invalid SMTP credentials, verify `MAIL_USERNAME` and `MAIL_PASSWORD` in the Render environment group.
+  3. If delivery fails, verify `BREVO_API_KEY` in the Render environment group and confirm that `MAIL_FROM_ADDRESS` is a verified Brevo sender. Check the Render logs for Brevo API errors; SMTP credentials are not used.
 
 ---
 
