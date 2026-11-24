@@ -49,4 +49,27 @@ class RegistrationTest extends TestCase
         // Confirm unverified user cannot reach /donor
         $this->get('/donor')->assertRedirect(route('verification.notice'));
     }
+
+    public function test_existing_unverified_email_explains_how_to_continue(): void
+    {
+        $user = User::factory()->unverified()->create([
+            'email' => 'already-registered@example.com',
+        ]);
+
+        $response = $this->post(route('register.store'), [
+            'name' => 'John Doe',
+            'email' => $user->email,
+            'phone' => '0772 123 456',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'consent' => '1',
+        ]);
+
+        $response->assertSessionHasErrors([
+            'email' => 'This email already has an account. Log in to continue; if it is not verified yet, choose Resend email on the verification page.',
+        ]);
+
+        $this->assertDatabaseCount('users', 1);
+        $this->assertFalse($user->fresh()->hasVerifiedEmail());
+    }
 }

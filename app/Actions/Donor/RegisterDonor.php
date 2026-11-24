@@ -32,6 +32,7 @@ class RegisterDonor
             'consent' => ['accepted'],
         ], [
             'consent.accepted' => 'You must agree to DonorLink UG storing your details and confirm you have read the privacy notice.',
+            'email.unique' => 'This email already has an account. Log in to continue; if it is not verified yet, choose Resend email on the verification page.',
             'phone' => PhoneNumber::errorMessage(),
             'date_of_birth.after_or_equal' => 'Please enter a valid date of birth on or after 1900.',
             'date_of_birth.before_or_equal' => 'Date of birth cannot be in the future.',

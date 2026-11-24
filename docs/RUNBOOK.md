@@ -13,7 +13,7 @@ This runbook provides emergency diagnosis and resolution procedures for system a
 > [!CAUTION]
 > **WHAT NOT TO DO UNDER ANY CIRCUMSTANCES:**
 > 1. **DO NOT run `php artisan migrate:fresh` or `migrate:reset` on production.** This will erase real donor appointment history, verified outcomes, and audit logs.
-> 2. **DO NOT run `php artisan db:seed` on production.** The seeder contains mock `[DEMO]` records and is strictly blocked by code in production.
+> 2. **DO NOT run `php artisan db:seed` on production.** The seeder is intended for local development accounts and is strictly blocked by code in production.
 > 3. **DO NOT delete or prune rows from `audit_logs` or `notification_logs`.** These are required for statutory legal compliance under the Uganda Data Protection and Privacy Act.
 > 4. **DO NOT manually update `booked_count` in the database.** Always inspect appointments and allow `BookingService` to maintain atomic capacity.
 

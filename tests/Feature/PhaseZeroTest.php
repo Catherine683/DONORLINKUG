@@ -3,6 +3,11 @@
 declare(strict_types=1);
 
 use App\Enums\Role;
+use App\Models\Appointment;
+use App\Models\DonationRecord;
+use App\Models\DonorProfile;
+use App\Models\Drive;
+use App\Models\Slot;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -125,6 +130,23 @@ test('the dev seeder refuses to run in production', function () {
 
     expect(fn () => (new DatabaseSeeder)->run())
         ->toThrow(RuntimeException::class, 'DatabaseSeeder is for development only and refuses to run in production.');
+});
+
+test('the dev seeder creates only the default users and is idempotent', function () {
+    $seeder = new DatabaseSeeder;
+
+    $seeder->run();
+    $seeder->run();
+
+    expect(User::query()->orderBy('email')->pluck('email')->all())
+        ->toBe(['admin@donorlink.test', 'staff@donorlink.test']);
+    expect(User::query()->where('role', Role::Admin)->exists())->toBeTrue();
+    expect(User::query()->where('role', Role::Staff)->exists())->toBeTrue();
+    expect(DonorProfile::query()->doesntExist())->toBeTrue();
+    expect(Drive::query()->doesntExist())->toBeTrue();
+    expect(Slot::query()->doesntExist())->toBeTrue();
+    expect(Appointment::query()->doesntExist())->toBeTrue();
+    expect(DonationRecord::query()->doesntExist())->toBeTrue();
 });
 
 test('application timezone is Africa/Kampala', function () {
