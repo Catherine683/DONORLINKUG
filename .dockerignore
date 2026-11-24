@@ -11,6 +11,7 @@ vendor
 public/build
 public/hot
 public/storage
+bootstrap/cache/*.php
 storage
 tests
 docs

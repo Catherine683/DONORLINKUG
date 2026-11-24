@@ -22,8 +22,11 @@ The Neon string should be in PostgreSQL URL form:
 postgresql://ROLE:PASSWORD@HOST/DBNAME?sslmode=require
 ```
 
-Laravel reads the complete string from `DB_URL`. Do not split it into MySQL
-variables or commit it to the repository.
+Laravel reads the complete string from `DB_URL`. If the Neon Console's URL also
+contains `channel_binding=require`, remove that query parameter for this app:
+Laravel's PostgreSQL PDO connector does not forward it to libpq. Keep
+`sslmode=require` so the connection still requires TLS. Do not split the URL
+into MySQL variables or commit it to the repository.
 
 ## 2. Configure and deploy the Render Blueprint
 
@@ -45,6 +48,11 @@ variables or commit it to the repository.
 
 The Blueprint creates three Render services (web, queue worker, scheduler).
 Review Render's current pricing for each service before applying it.
+
+Enter secrets in the Render Dashboard, not in this repository or local `.env`:
+open **Environment Groups** → `donorlink-production` → add or update `DB_URL`,
+then save and deploy the linked services. Use the same group for the Neon URL
+and other production values.
 
 The web service builds the PHP/Apache application and Vite assets from the
 Dockerfile. Render runs `php artisan migrate --force` as its web service
