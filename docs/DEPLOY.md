@@ -10,9 +10,11 @@ scheduler. The database is external and must be created in Neon.
 1. Create a Neon project and database in a region close to the Render Frankfurt
    region, where possible.
 2. In the Neon Console, choose the production branch, database, and role, then
-   copy its connection string. Use the pooled connection for the web service
-   and queue worker if the app's connection count requires it. Include
-   `sslmode=require` in the URL.
+   copy its **direct** connection string (turn connection pooling off). Neon
+   recommends direct connections for schema migrations. This deployment uses
+   the same `DB_URL` for startup migrations and the web app, which is suitable
+   for a small, single-instance Render Free service. Include `sslmode=require`
+   in the URL.
 3. Keep the connection string private. Add it to Render as `DB_URL`; the
    Blueprint sets `DB_CONNECTION=pgsql`.
 
@@ -27,6 +29,11 @@ contains `channel_binding=require`, remove that query parameter for this app:
 Laravel's PostgreSQL PDO connector does not forward it to libpq. Keep
 `sslmode=require` so the connection still requires TLS. Do not split the URL
 into MySQL variables or commit it to the repository.
+
+The pooled endpoint (hostname containing `-pooler`) is intended for runtime
+traffic that needs higher connection concurrency. If you later need pooling,
+keep the web runtime on a pooled URL but provide a separate direct URL for
+migration commands.
 
 ## 2. Configure and deploy the Render Blueprint
 
