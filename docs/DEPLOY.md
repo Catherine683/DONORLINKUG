@@ -59,7 +59,27 @@ Dockerfile. Render runs `php artisan migrate --force` as its web service
 pre-deploy command. The `/up` health check verifies that Laravel is serving
 requests. The queue and scheduler services share the same production
 environment group. The container entrypoint caches Laravel configuration at
-startup using the service's runtime environment variables.
+startup using the service's runtime environment variables. The web service
+also has `MIGRATE_ON_START=true`, so it applies pending migrations before
+starting Apache. This provides a migration path on Render's Free plan, where
+Shell access and paid pre-deploy commands aren't available. For a manually
+created web service, add `MIGRATE_ON_START=true` to its environment and
+redeploy.
+
+If the live site reports that the `sessions` table is missing, set
+`APP_DEBUG=false` in the Render environment group and redeploy immediately.
+Then open the web service's Shell and check/run pending migrations:
+
+```bash
+php artisan migrate:status
+php artisan migrate --force
+php artisan migrate:status
+```
+
+The initial migration creates `sessions`. Do not run `migrate:fresh` or
+`migrate:reset`. If the migration status says that initial migration already
+ran but the `sessions` table is still absent, stop and investigate the Neon
+database/branch or schema before changing migration history.
 
 ## 3. Bootstrap the first administrator
 
