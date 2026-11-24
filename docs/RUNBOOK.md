@@ -8,7 +8,7 @@ This runbook provides emergency diagnosis and resolution procedures for system a
 
 - **Primary Contact:** UBTS Principal System Administrator (`admin@ubts.go.ug` / +256 700 000 001)
 - **Medical Records Desk:** Nakasero Headquarters Donation Registry (`records@ubts.go.ug`)
-- **Hosting / Cloud Provider:** Laravel Cloud Support Portal / Infrastructure Team
+- **Hosting / Cloud Provider:** Render Dashboard / Neon Console / Infrastructure Team
 
 > [!CAUTION]
 > **WHAT NOT TO DO UNDER ANY CIRCUMSTANCES:**
@@ -30,8 +30,8 @@ This runbook provides emergency diagnosis and resolution procedures for system a
   3. Check the Queue Worker Heartbeat age (if > 15 minutes, queue worker is stalled).
   4. Run `SELECT * FROM notification_logs WHERE type = 'appointment_reminder' ORDER BY id DESC LIMIT 20;`.
 - **Fix:**
-  1. In Laravel Cloud, check that **Scheduler** is toggled **ON**.
-  2. In Laravel Cloud, ensure the queue worker process (`php artisan queue:work database`) is active and has not crashed.
+  1. In Render, check that the `donorlink-scheduler` cron service is active.
+  2. In Render, ensure the `donorlink-queue` worker process (`php artisan queue:work database`) is active and has not crashed.
   3. Verify Brevo mail credentials in environment settings.
   4. Manually trigger a scheduler sweep from the hosted console if necessary: `php artisan donorlink:send-reminders`.
 
@@ -47,7 +47,7 @@ This runbook provides emergency diagnosis and resolution procedures for system a
 - **Fix:**
   1. If quota reached (300/day on Brevo free plan), drive announcements automatically pause to preserve remaining headroom for transactional booking/rescheduling emails.
   2. If emergency quota is exhausted, upgrade the Brevo plan or increase `DONORLINK_MAIL_DAILY_BUDGET` after purchasing additional credits.
-  3. If failing due to invalid SMTP credentials, verify `MAIL_USERNAME` and `MAIL_PASSWORD` in Laravel Cloud environment variables.
+  3. If failing due to invalid SMTP credentials, verify `MAIL_USERNAME` and `MAIL_PASSWORD` in the Render environment group.
 
 ---
 
@@ -58,7 +58,7 @@ This runbook provides emergency diagnosis and resolution procedures for system a
   1. Visit `/admin/system` &rarr; review **Recent Failed Queue Jobs** table.
   2. Inspect the truncated exception message (payloads and sensitive arguments are safely hidden).
 - **Fix:**
-  1. Restart the queue worker process in Laravel Cloud.
+  1. Restart the `donorlink-queue` worker in Render.
   2. To retry failed jobs: `php artisan queue:retry all`.
   3. Failed jobs are pruned automatically after 7 days (`queue:prune-failed --hours=168`).
 
@@ -70,7 +70,7 @@ This runbook provides emergency diagnosis and resolution procedures for system a
 - **Check:**
   1. Visit `/admin/system` &rarr; **Scheduler Heartbeat** status says `Stale` or `Never Run`.
 - **Fix:**
-  1. In Laravel Cloud, navigate to **Settings** &rarr; **Cron / Scheduler** and confirm it is enabled.
+  1. In Render, confirm the `donorlink-scheduler` cron service is active and scheduled once per minute.
   2. Trigger an immediate heartbeat via the button on `/admin/system` or run `php artisan donorlink:heartbeat` in the console.
 
 ---

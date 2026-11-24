@@ -29,7 +29,7 @@ medical professionals.
 - Livewire 4
 - Fortify
 - SQLite for local development
-- MySQL or PostgreSQL for staging and production
+- PostgreSQL (Neon target) or MySQL for staging and production
 - Vite 8 and Tailwind CSS 4
 - Pest 4 for tests
 
@@ -167,7 +167,9 @@ The Laravel scheduler runs:
 | `donorlink:dispatch-announcements` | Every ten minutes |
 | `queue:prune-failed --hours=168` | Daily |
 
-Production requires both the Laravel scheduler and a database queue worker:
+Production requires both the Laravel scheduler and a database queue worker.
+The deployment configuration in this repository targets Render with Neon
+PostgreSQL:
 
 ```bash
 php artisan schedule:work
@@ -175,7 +177,8 @@ php artisan queue:work database --sleep=3 --tries=3 --timeout=90
 ```
 
 For hosted deployments, configure scheduler and worker processes in the hosting
-platform rather than running these commands through a shell.
+platform rather than running these commands through a shell. See
+[`docs/DEPLOY.md`](docs/DEPLOY.md) for the Render and Neon setup.
 
 ## Configuration
 
@@ -205,10 +208,11 @@ MAIL_HOST=smtp-relay.brevo.com
 MAIL_PORT=587
 MAIL_USERNAME=your-brevo-username
 MAIL_PASSWORD=your-brevo-smtp-key
-MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=no-reply@example.ug
 MAIL_FROM_NAME="DonorLink UG"
 ```
+
+Port 587 uses SMTP with automatic STARTTLS negotiation.
 
 Test delivery after configuring credentials:
 

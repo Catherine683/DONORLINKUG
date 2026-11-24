@@ -1,12 +1,12 @@
 # DonorLink UG — Launch Checklist
 
-This checklist must be executed and signed off by the **Project Owner** and **UBTS Technical Lead** before switching public traffic to the production environment on Laravel Cloud.
+This checklist must be executed and signed off by the **Project Owner** and **UBTS Technical Lead** before switching public traffic to the production environment on Render.
 
 ---
 
 ## 1. Domain & DNS Authentication
 
-- [ ] **Canonical HTTPS Domain:** Ensure `APP_URL` is set to the official domain (e.g. `https://donorlink.ubts.go.ug`) and points to the Laravel Cloud load balancer.
+- [ ] **Canonical HTTPS Domain:** Ensure `APP_URL` is set to the official domain (e.g. `https://donorlink.ubts.go.ug`) and points to the Render web service.
 - [ ] **Brevo Sender Domain DNS Records:**
   - [ ] **SPF Record:** `v=spf1 include:spf.brevo.com ~all` configured on the sending domain.
   - [ ] **DKIM Record:** Brevo public key TXT record added to DNS and verified in the Brevo console.
@@ -27,10 +27,10 @@ This checklist must be executed and signed off by the **Project Owner** and **UB
 
 ## 3. Database & Backup Verification
 
-- [ ] **Managed MySQL / PostgreSQL Running:** Database cluster provisioned with SSL/TLS in Laravel Cloud.
-- [ ] **Automated Backups Scheduled:** Point-in-time recovery or daily automated backups scheduled in cloud settings.
+- [ ] **Neon PostgreSQL Running:** Production database provisioned, reachable from Render, and using SSL/TLS.
+- [ ] **Automated Backups Scheduled:** Neon backups configured and documented.
 - [ ] **Backup Restore Tested:** Execute a test restore of a database snapshot to a staging database to verify backup integrity.
-- [ ] **Race Check Re-run against MySQL:** Execute the booking concurrency race check against the target MySQL database:
+- [ ] **Booking Concurrency Verified:** Execute the booking concurrency race check against a dedicated supported database test environment:
   ```bash
   php artisan donorlink:booking-race-check
   ```
@@ -58,7 +58,7 @@ This checklist must be executed and signed off by the **Project Owner** and **UB
   **Must report 0 FAILURES.**
 - [ ] **Session Cookie Flags:** Confirm `SESSION_SECURE_COOKIE=true` and `SESSION_DRIVER=database`.
 - [ ] **Zero Debug Leaks:** Confirm `APP_DEBUG=false`.
-- [ ] **Trusted Proxies Configured:** Confirm `TRUSTED_PROXIES=*` so signed links and HTTPS schemes are valid behind cloud load balancers.
+- [ ] **Trusted Proxies Configured:** Confirm `TRUSTED_PROXIES=*` so signed links and HTTPS schemes are valid behind Render's load balancer.
 
 ---
 
@@ -76,7 +76,7 @@ This checklist must be executed and signed off by the **Project Owner** and **UB
 
 ## 7. Staging Smoke Test Verification
 
-- [ ] Run the complete staging smoke test script in [docs/SMOKE_TEST.md](file:///e:/Donor%20Link%20UG/docs/SMOKE_TEST.md).
+- [ ] Run the complete staging smoke test script in [docs/SMOKE_TEST.md](SMOKE_TEST.md).
 - [ ] Confirm donor registration, verification, slot reservation, cancellation, reschedule, on-site check-in, donation outcome recording, walk-in recording, and drive close-out.
 - [ ] Confirm CSV reports and donor data exports download cleanly without formula injection.
 
@@ -88,5 +88,5 @@ This checklist must be executed and signed off by the **Project Owner** and **UB
   - Designated Administrator: **UBTS Lead System Administrator**
   - Check Frequency: Daily review of `/admin/system` (monitoring scheduler heartbeat, worker heartbeat, failed queue jobs, and 24h mail volume).
 - [ ] **Emergency Rollback Plan:**
-  - If a deployment failure occurs, trigger **Rollback Release** in Laravel Cloud.
+  - If a deployment failure occurs, roll back the Render web service to the previous successful deploy.
   - Because all migrations are strictly additive, previous code releases can run safely against the newer database schema without rolling back the database.

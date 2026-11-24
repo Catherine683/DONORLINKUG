@@ -123,7 +123,7 @@ class PreflightCommand extends Command
         $sessionDriver = (string) config('session.driver');
         $cacheDriver = (string) config('cache.default');
         if (in_array($sessionDriver, ['file', 'array'], true) || in_array($cacheDriver, ['file', 'array'], true)) {
-            $this->printCheck('FAIL', 'SESSION/CACHE', "Session ('{$sessionDriver}') and cache ('{$cacheDriver}') must not use file or array driver on Laravel Cloud.");
+            $this->printCheck('FAIL', 'SESSION/CACHE', "Session ('{$sessionDriver}') and cache ('{$cacheDriver}') must not use file or array drivers in production.");
             $failCount++;
         } else {
             $this->printCheck('PASS', 'SESSION/CACHE', "Distributed session ('{$sessionDriver}') and cache ('{$cacheDriver}') configured.");
@@ -202,7 +202,7 @@ class PreflightCommand extends Command
 
         // WARN 3: No scheduler heartbeat seen yet
         if (! Cache::has('donorlink:heartbeat:scheduler')) {
-            $this->printCheck('WARN', 'SCHEDULER_HEARTBEAT', 'No scheduler heartbeat has been recorded yet. Ensure scheduler is enabled in cloud settings.');
+            $this->printCheck('WARN', 'SCHEDULER_HEARTBEAT', 'No scheduler heartbeat has been recorded yet. Ensure the scheduler is enabled on the hosting platform.');
             $warnCount++;
         } else {
             $this->printCheck('PASS', 'SCHEDULER_HEARTBEAT', 'Scheduler heartbeat is present.');
