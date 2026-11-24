@@ -10,10 +10,13 @@ use App\Events\AppointmentRescheduled;
 use App\Listeners\SendAppointmentCancelledNotification;
 use App\Listeners\SendAppointmentConfirmedNotification;
 use App\Listeners\SendAppointmentRescheduledNotification;
+use App\Mail\BrevoTransport;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Date;
@@ -40,9 +43,30 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        $this->configureBrevoMailTransport();
         $this->configureGates();
         $this->configureBrandedEmails();
         $this->configureEvents();
+    }
+
+    /**
+     * Configure Brevo's HTTPS API mail transport.
+     */
+    protected function configureBrevoMailTransport(): void
+    {
+        Mail::extend('brevo', function (): BrevoTransport {
+            $apiKey = config('services.brevo.api_key');
+
+            if (! is_string($apiKey) || trim($apiKey) === '') {
+                throw new \InvalidArgumentException('BREVO_API_KEY must be configured to use the Brevo mailer.');
+            }
+
+            return new BrevoTransport(
+                Http::withHeaders(['api-key' => $apiKey])
+                    ->acceptJson()
+                    ->timeout(15),
+            );
+        });
     }
 
     /**

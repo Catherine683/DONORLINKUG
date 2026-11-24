@@ -49,8 +49,8 @@ migration commands.
      environment group and redeploy before generating invitations or opening
      the site to users.
    - `DB_URL`: use the Neon PostgreSQL connection string.
-   - `MAIL_USERNAME`, `MAIL_PASSWORD`, and `MAIL_FROM_ADDRESS`: use verified
-     Brevo SMTP credentials and a verified sender address.
+   - `BREVO_API_KEY`: create a Brevo API v3 key (not an SMTP key).
+   - `MAIL_FROM_ADDRESS`: use an address verified as a sender in Brevo.
 4. Review the service plans and regions, then apply the Blueprint.
 
 The Blueprint creates three Render services (web, queue worker, scheduler).
@@ -59,7 +59,10 @@ Review Render's current pricing for each service before applying it.
 Enter secrets in the Render Dashboard, not in this repository or local `.env`:
 open **Environment Groups** → `donorlink-production` → add or update `DB_URL`,
 then save and deploy the linked services. Use the same group for the Neon URL
-and other production values.
+and other production values. A `DB_URL` set directly on an individual Render
+service overrides the group value; remove or update any service-level
+`DB_URL` too. After redeploying, verify the migration log's database host does
+not contain `-pooler` when using the direct endpoint.
 
 The web service builds the PHP/Apache application and Vite assets from the
 Dockerfile. Render runs `php artisan migrate --force` as its web service
@@ -99,7 +102,7 @@ After the first successful deployment and migrations:
    ```
 
 2. Retrieve the one-time signed invitation from the command output, open it,
-   and complete account setup. Ensure SMTP delivery is working if the
+   and    complete account setup. Ensure Brevo API delivery is working if the
    invitation is sent by email.
 3. Run the production checks in the Render Shell:
 
@@ -127,7 +130,7 @@ after migrations and stop before startup if a production check fails.
 
 The Blueprint configures production mode, PostgreSQL, database-backed sessions,
 cache and queues, HTTPS-only cookies, stderr logging, the trusted proxy, and
-Brevo SMTP defaults. Configure these additional application values in the
+Brevo HTTPS API delivery. Configure these additional application values in the
 Render environment group before launch:
 
 | Variable | Purpose |
@@ -162,7 +165,9 @@ Before sharing the public URL:
 - Confirm `APP_DEBUG=false`, `APP_ENV=production`, the canonical HTTPS
   `APP_URL`, and `SESSION_SECURE_COOKIE=true`.
 - Confirm Neon connectivity, SSL, migrations, and the active administrator.
-- Confirm SMTP sender verification and test a transactional email.
+- Confirm the Brevo API key and sender verification, then test a transactional
+  email. Render Free blocks outbound SMTP on ports 25, 465, and 587; the
+  configured Brevo API sends over HTTPS instead.
 - Run `php artisan donorlink:preflight` and resolve all failures.
 - Complete the staging flow in [SMOKE_TEST.md](SMOKE_TEST.md).
 - Configure DNS authentication for Brevo and add/verify any custom Render
